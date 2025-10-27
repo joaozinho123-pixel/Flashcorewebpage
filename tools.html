@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlashCore AI - Tools & Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 215, 0, 0.12) 0%, transparent 50%),
+                linear-gradient(180deg, transparent 0%, rgba(255, 215, 0, 0.03) 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255, 215, 0, 0.05) 2px,
+                    rgba(255, 215, 0, 0.05) 4px
+                ),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255, 215, 0, 0.05) 2px,
+                    rgba(255, 215, 0, 0.05) 4px
+                );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Lightning Effects */
+        .lightning-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .lightning {
+            position: absolute;
+            width: 3px;
+            height: 150px;
+            background: linear-gradient(to bottom,
+                rgba(255, 215, 0, 0.9) 0%,
+                rgba(255, 215, 0, 0.7) 30%,
+                rgba(255, 215, 0, 0.4) 70%,
+                transparent 100%);
+            animation: lightning-fall 2.5s linear infinite;
+            opacity: 0;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .lightning:nth-child(1) { left: 8%; animation-delay: 0s; }
+        .lightning:nth-child(2) { left: 20%; animation-delay: 0.4s; }
+        .lightning:nth-child(3) { left: 35%; animation-delay: 0.8s; }
+        .lightning:nth-child(4) { left: 50%; animation-delay: 1.2s; }
+        .lightning:nth-child(5) { left: 65%; animation-delay: 1.6s; }
+        .lightning:nth-child(6) { left: 80%; animation-delay: 2s; }
+        .lightning:nth-child(7) { left: 92%; animation-delay: 2.4s; }
+
+        @keyframes lightning-fall {
+            0% {
+                top: -150px;
+                opacity: 0;
+                transform: scale(0) rotate(0deg);
+            }
+            5% {
+                opacity: 1;
+                transform: scale(1) rotate(-2deg);
+            }
+            25% {
+                opacity: 0.9;
+                transform: scale(1.1) rotate(0deg);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.2) rotate(2deg);
+            }
+            75% {
+                opacity: 0.3;
+                transform: scale(0.9) rotate(-1deg);
+            }
+            100% {
+                top: 100vh;
+                opacity: 0;
+                transform: scale(0) rotate(0deg);
+            }
+        }
+
+        /* Logo Section */
+        .logo-section {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .ai-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #000;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+            animation: logo-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes logo-glow {
+            0%, 100% { box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4); }
+            50% { box-shadow: 0 12px 35px rgba(255, 215, 0, 0.7); }
+        }
+
+        .logo-text {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+            padding: 1rem 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-btn {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            color: #FFD700;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: #FFD700;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+        }
+
+        .nav-btn.primary {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            border: none;
+            font-weight: 700;
+        }
+
+        .nav-btn.primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.5);
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            padding: 120px 2rem 4rem;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .dashboard-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FFD700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.03em;
+            text-shadow: 0 0 40px rgba(255, 215, 0, 0.5);
+        }
+
+        .dashboard-subtitle {
+            font-size: 1.3rem;
+            opacity: 0.8;
+            margin-bottom: 3rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto 4rem;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .stat-card {
+            background: rgba(255, 215, 0, 0.08);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 215, 0, 0.5);
+            box-shadow: 0 15px 35px rgba(255, 215, 0, 0.15);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.8;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Advanced Tools Section */
+        .advanced-tools-section {
+            padding: 4rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 4rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .advanced-tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .advanced-tool-card {
+            background: rgba(255, 215, 0, 0.08);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            border-radius: 25px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .advanced-tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.05));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .advanced-tool-card:hover::before {
+            opacity: 1;
+        }
+
+        .advanced-tool-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 215, 0, 0.5);
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.15);
+        }
+
+        .advanced-tool-icon {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2.5rem;
+            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .advanced-tool-card:hover .advanced-tool-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 18px 45px rgba(255, 215, 0, 0.6);
+        }
+
+        .advanced-tool-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #FFD700;
+        }
+
+        .advanced-tool-description {
+            font-size: 1rem;
+            opacity: 0.8;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1.5rem;
+        }
+
+        .tool-features {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+
+        .tool-feature {
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tool-feature::before {
+            content: '⚡';
+            color: #FFD700;
+            font-size: 0.8rem;
+        }
+
+        .tool-button {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .tool-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        /* Interactive Demo Section */
+        .demo-section {
+            padding: 4rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .demo-container {
+            background: rgba(255, 215, 0, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 30px;
+            padding: 3rem;
+            text-align: center;
+        }
+
+        .demo-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .demo-description {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .demo-input {
+            width: 100%;
+            max-width: 600px;
+            padding: 1rem 1.5rem;
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .demo-input:focus {
+            border-color: #FFD700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .demo-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .demo-button {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 0.5rem 1rem;
+        }
+
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        .demo-output {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            min-height: 100px;
+            display: none;
+        }
+
+        .demo-output.show {
+            display: block;
+        }
+
+        /* Integration Section */
+        .integration-section {
+            padding: 4rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .integration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .integration-card {
+            background: rgba(255, 215, 0, 0.06);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .integration-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 215, 0, 0.4);
+            box-shadow: 0 15px 35px rgba(255, 215, 0, 0.1);
+        }
+
+        .integration-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.8rem;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+        }
+
+        .integration-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #FFD700;
+        }
+
+        .integration-description {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 3rem 2rem 2rem;
+            text-align: center;
+            margin-top: 5rem;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        .footer-link {
+            color: rgba(255, 215, 0, 0.7);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .footer-link:hover {
+            color: #FFD700;
+            background: rgba(255, 215, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .logo-section {
+                top: 1rem;
+                left: 1rem;
+            }
+
+            .ai-logo {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+
+            .logo-text {
+                font-size: 1rem;
+            }
+
+            .nav-container {
+                padding: 0 1rem;
+            }
+
+            .nav-buttons {
+                gap: 1rem;
+            }
+
+            .nav-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.8rem;
+            }
+
+            .dashboard-header {
+                padding: 100px 1rem 3rem;
+            }
+
+            .dashboard-title {
+                font-size: 2.5rem;
+            }
+
+            .dashboard-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .stats-section {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 0 1rem 3rem;
+            }
+
+            .advanced-tools-section,
+            .demo-section,
+            .integration-section {
+                padding: 3rem 1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .advanced-tools-grid,
+            .integration-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .demo-container {
+                padding: 2rem 1rem;
+            }
+
+            .demo-title {
+                font-size: 1.8rem;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- AI Logo -->
+    <div class="logo-section">
+        <div class="ai-logo">⚡</div>
+        <div class="logo-text">FlashCore AI</div>
+    </div>
+
+    <!-- Lightning Effects -->
+    <div class="lightning-container">
+        <div class="lightning"></div>
+        <div class="lightning"></div>
+        <div class="lightning"></div>
+        <div class="lightning"></div>
+        <div class="lightning"></div>
+        <div class="lightning"></div>
+        <div class="lightning"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-buttons">
+                <a href="index.html" class="nav-btn">← Home</a>
+                <a href="#tools" class="nav-btn">AI Tools</a>
+                <a href="#demo" class="nav-btn">Try Demo</a>
+                <a href="#integrations" class="nav-btn">Integrations</a>
+                <a href="https://flashcore-ai-chat-389399072475.us-west1.run.app" class="nav-btn primary">Start Now</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <section class="dashboard-header">
+        <h1 class="dashboard-title">AI Tools Dashboard</h1>
+        <p class="dashboard-subtitle">
+            Explore our comprehensive suite of AI-powered tools and features designed to enhance your productivity and creativity
+        </p>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="stat-card">
+            <div class="stat-number">50+</div>
+            <div class="stat-label">AI Tools Available</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">100K+</div>
+            <div class="stat-label">Queries Processed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">99.9%</div>
+            <div class="stat-label">Uptime Guarantee</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">AI Support</div>
+        </div>
+    </section>
+
+    <!-- Advanced Tools Section -->
+    <section class="advanced-tools-section" id="tools">
+        <h2 class="section-title">Advanced AI Tools</h2>
+        <p class="section-subtitle">
+            Discover powerful AI capabilities that can transform your workflow and boost productivity
+        </p>
+
+        <div class="advanced-tools-grid">
+            <div class="advanced-tool-card">
+                <div class="advanced-tool-icon">🎨</div>
+                <h3 class="advanced-tool-title">AI Image Generator</h3>
+                <p class="advanced-tool-description">
+                    Create stunning visuals from text descriptions using advanced DALL-E style AI technology.
+                </p>
+                <ul class="tool-features">
+                    <li class="tool-feature">High-resolution images</li>
+                    <li class="tool-feature">Multiple art styles</li>
+                    <li class="tool-feature">Real-time generation</li>
+                    <li class="tool-feature">Commercial usage rights</li>
+                </ul>
+                <button class="tool-button" onclick="openTool('image-generator')">Try Now</button>
+            </div>
+
+            <div class="advanced-tool-card">
+                <div class="advanced-tool-icon">🔍</div>
+                <h3 class="advanced-tool-title">DeepSearch Pro</h3>
+                <p class="advanced-tool-description">
+                    Advanced semantic search that understands context, intent, and provides comprehensive results.
+                </p>
+                <ul class="tool-features">
+                    <li class="tool-feature">Context understanding</li>
+                    <li class="tool-feature">Multi-source aggregation</li>
+                    <li class="tool-feature">Real-time results</li>
+                    <li class="tool-feature">Source verification</li>
+                </ul>
+                <button class="tool-button" onclick="openTool('deepsearch')">Launch Search</button>
+            </div>
+
+            <div class="advanced-tool-card">
+                <div class="advanced-tool-icon">🧮</div>
+                <h3 class="advanced-tool-title">DeepThink Engine</h3>
+                <p class="advanced-tool-description">
+                    Complex reasoning and analysis for solving intricate problems with step-by-step explanations.
+                </p>
+                <ul class="tool-features">
+                    <li class="tool-feature">Step-by-step reasoning</li>
+                    <li class="tool-feature">Multiple perspectives</li>
+                    <li class="tool-feature">Evidence-based conclusions</li>
+                    <li class="tool-feature">Interactive explanations</li>
+                </ul>
+                <button class="tool-button" onclick="openTool('deepthink')">Start Thinking</button>
+            </div>
+
+            <div class="advanced-tool-card">
+                <div class="advanced-tool-icon">📝</div>
+                <h3 class="advanced-tool-title">Content Studio</h3>
+                <p class="advanced-tool-description">
+                    Professional content creation with AI assistance for articles, blogs, and marketing materials.
+                </p>
+                <ul class="tool-features">
+                    <li class="tool-feature">SEO optimization</li>
+                    <li class="tool-feature">Multiple formats</li>
+                    <li class="tool-feature">Tone adjustment</li>
+                    <li class="tool-feature">Plagiarism checking</li>
+                </ul>
+                <button class="tool-button" onclick="openTool('content-studio')">Create Content</button>
+            </div>
+
+            <div class="advanced-tool-card">
+                <div class="advanced-tool-icon">💻</div>
+                <h3 class="advanced-tool-title">Code Assistant Pro</h3>
+                <p class="advanced-tool-description">
+                    AI-powered programming assistance with debugging, optimization, and code generation capabilities.
+                </p>
+                <ul class="tool-features">
+                    <li class="tool-feature">Multi-language support</li>
+                    <li class="tool-feature">Debug assistance</li>
+                    <li class="tool-feature">Performance optimization</li>
+                    <li class="tool-feature">Best practices guidance</li>
+                </ul>
+                <button class="tool-button" onclick="openTool('code-assistant')">Start Coding</button>
+            </div>
+
+            <div class="advanced-tool-card">
+                <div class="advanced-tool-icon">🎵</div>
+                <h3 class="advanced-tool-title">Audio AI Studio</h3>
+                <p class="advanced-tool-description">
+                    Advanced audio processing, transcription, and generation for multimedia content creation.
+                </p>
+                <ul class="tool-features">
+                    <li class="tool-feature">Speech-to-text</li>
+                    <li class="tool-feature">Audio enhancement</li>
+                    <li class="tool-feature">Voice synthesis</li>
+                    <li class="tool-feature">Multi-language support</li>
+                </ul>
+                <button class="tool-button" onclick="openTool('audio-studio')">Process Audio</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Demo Section -->
+    <section class="demo-section" id="demo">
+        <div class="demo-container">
+            <h2 class="demo-title">Try FlashCore AI Live</h2>
+            <p class="demo-description">
+                Experience the power of our AI with this interactive demonstration
+            </p>
+
+            <input type="text" class="demo-input" placeholder="Ask me anything... (e.g., 'Write a Python function to calculate fibonacci numbers')" id="demoInput">
+
+            <div>
+                <button class="demo-button" onclick="runDemo('text')">Generate Response</button>
+                <button class="demo-button" onclick="runDemo('image')">Generate Image</button>
+                <button class="demo-button" onclick="runDemo('analyze')">Analyze Text</button>
+            </div>
+
+            <div class="demo-output" id="demoOutput">
+                <h4>AI Response:</h4>
+                <p id="demoResult">Enter a query above and click one of the buttons to see FlashCore AI in action!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Integration Section -->
+    <section class="integration-section" id="integrations">
+        <h2 class="section-title">Platform Integrations</h2>
+        <p class="section-subtitle">
+            Seamlessly integrate FlashCore AI with your favorite tools and platforms
+        </p>
+
+        <div class="integration-grid">
+            <div class="integration-card">
+                <div class="integration-icon">🌐</div>
+                <h3 class="integration-title">Web Integration</h3>
+                <p class="integration-description">
+                    Embed AI capabilities directly into your website or web application with our API.
+                </p>
+            </div>
+
+            <div class="integration-card">
+                <div class="integration-icon">📱</div>
+                <h3 class="integration-title">Mobile Apps</h3>
+                <p class="integration-description">
+                    Access AI tools on-the-go with our mobile SDK for iOS and Android development.
+                </p>
+            </div>
+
+            <div class="integration-card">
+                <div class="integration-icon">☁️</div>
+                <h3 class="integration-title">Cloud Services</h3>
+                <p class="integration-description">
+                    Deploy AI solutions on major cloud platforms including AWS, Google Cloud, and Azure.
+                </p>
+            </div>
+
+            <div class="integration-card">
+                <div class="integration-icon">🔧</div>
+                <h3 class="integration-title">Custom Solutions</h3>
+                <p class="integration-description">
+                    Build custom AI applications tailored to your specific business requirements.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">FlashCore AI</div>
+            <div class="footer-links">
+                <a href="index.html" class="footer-link">Home</a>
+                <a href="#tools" class="footer-link">AI Tools</a>
+                <a href="#demo" class="footer-link">Demo</a>
+                <a href="#integrations" class="footer-link">Integrations</a>
+                <a href="mailto:gamerprojp2@gmail.com" class="footer-link">Support</a>
+            </div>
+            <div class="social-links">
+                <a href="mailto:gamerprojp2@gmail.com" class="social-link">📧</a>
+                <a href="#" class="social-link">🐦</a>
+                <a href="#" class="social-link">💼</a>
+                <a href="#" class="social-link">🌐</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Add dynamic lightning effects
+        function createLightning() {
+            const container = document.querySelector('.lightning-container');
+            const lightning = document.createElement('div');
+            lightning.className = 'lightning';
+            lightning.style.left = Math.random() * 100 + '%';
+            lightning.style.animationDelay = Math.random() * 2.5 + 's';
+            lightning.style.animationDuration = (Math.random() * 1 + 2) + 's';
+
+            container.appendChild(lightning);
+
+            setTimeout(() => {
+                if (lightning.parentNode) {
+                    lightning.parentNode.removeChild(lightning);
+                }
+            }, 3000);
+        }
+
+        // Create lightning every 300ms
+        setInterval(createLightning, 300);
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                navbar.style.background = 'rgba(0, 0, 0, 0.95)';
+                navbar.style.borderBottom = '1px solid rgba(255, 215, 0, 0.4)';
+            } else {
+                navbar.style.background = 'rgba(0, 0, 0, 0.8)';
+                navbar.style.borderBottom = '1px solid rgba(255, 215, 0, 0.3)';
+            }
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Tool functionality
+        function openTool(toolName) {
+            console.log(`FlashCore: Opening ${toolName}`);
+            // Here you would implement actual tool functionality
+            alert(`Opening ${toolName.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}...\n\nThis is a demo interface. In a real implementation, this would open the actual AI tool.`);
+        }
+
+        // Demo functionality
+        function runDemo(type) {
+            const input = document.getElementById('demoInput').value;
+            const output = document.getElementById('demoOutput');
+            const result = document.getElementById('demoResult');
+
+            if (!input.trim()) {
+                alert('Please enter a query first!');
+                return;
+            }
+
+            output.classList.add('show');
+
+            // Simulate AI processing
+            result.innerHTML = '🤖 Processing your request...';
+
+            setTimeout(() => {
+                switch(type) {
+                    case 'text':
+                        result.innerHTML = `📝 <strong>AI Response:</strong><br><br>Thank you for your query: "${input}"<br><br>Here's a comprehensive response based on advanced AI analysis:<br><br>• Understanding: I can see you're asking about ${input.substring(0, 50)}...<br>• Analysis: This appears to be a ${input.includes('?') ? 'question' : 'statement'} related to ${input.includes('code') || input.includes('function') ? 'programming' : 'general knowledge'}<br>• Recommendation: For optimal results, consider providing more specific details<br>• Next Steps: You can refine your query or ask follow-up questions<br><br>Response generated in 0.3 seconds using FlashCore AI Deep Learning Engine.`;
+                        break;
+                    case 'image':
+                        result.innerHTML = `🎨 <strong>Image Generation:</strong><br><br>Based on your description "${input}", I've generated a conceptual image.<br><br>• Style: Modern digital art<br>• Resolution: 1024x1024px<br>• Generation Time: 2.1 seconds<br>• Artistic Elements: ${input.includes('nature') ? 'Natural landscapes' : input.includes('tech') ? 'Technological elements' : 'Abstract composition'}<br><br>In a full implementation, this would display the actual generated image.`;
+                        break;
+                    case 'analyze':
+                        result.innerHTML = `🔍 <strong>Text Analysis:</strong><br><br>Analyzing: "${input}"<br><br>• Sentiment: ${input.length > 50 ? 'Detailed' : 'Concise'} expression<br>• Language: English<br>• Complexity: ${input.split(' ').length > 10 ? 'Advanced' : 'Basic'}<br>• Topics: ${input.includes('AI') || input.includes('tech') ? 'Technology' : input.includes('business') ? 'Business' : 'General'}<br>• Suggestions: Consider adding specific examples for more detailed analysis<br><br>Analysis completed in 0.1 seconds.`;
+                        break;
+                }
+            }, 1500);
+        }
+
+        // Stats counter animation
+        function animateStats() {
+            const stats = document.querySelectorAll('.stat-number');
+            stats.forEach(stat => {
+                const finalValue = stat.textContent;
+                const numericValue = parseInt(finalValue.replace(/[^\d]/g, ''));
+                let currentValue = 0;
+                const increment = numericValue / 50;
+
+                const timer = setInterval(() => {
+                    currentValue += increment;
+                    if (currentValue >= numericValue) {
+                        stat.textContent = finalValue;
+                        clearInterval(timer);
+                    } else {
+                        stat.textContent = Math.floor(currentValue) + (finalValue.includes('%') ? '%' : finalValue.includes('K') ? 'K+' : '+');
+                    }
+                }, 50);
+            });
+        }
+
+        // Trigger stats animation when section is visible
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateStats();
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+
+        observer.observe(document.querySelector('.stats-section'));
+
+        // Add click tracking
+        document.querySelectorAll('.nav-btn, .tool-button, .demo-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                console.log(`FlashCore: User clicked ${this.textContent.trim()} button`);
+            });
+        });
+
+        // Parallax effect
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const dashboardHeader = document.querySelector('.dashboard-header');
+            if (dashboardHeader) {
+                dashboardHeader.style.transform = `translateY(${scrolled * 0.3}px)`;
+            }
+        });
+    </script>
+</body>
+</html>

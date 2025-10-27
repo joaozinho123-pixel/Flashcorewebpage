@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlashCore AI - Advanced AI Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 215, 0, 0.12) 0%, transparent 50%),
+                linear-gradient(180deg, transparent 0%, rgba(255, 215, 0, 0.03) 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255, 215, 0, 0.05) 2px,
+                    rgba(255, 215, 0, 0.05) 4px
+                ),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255, 215, 0, 0.05) 2px,
+                    rgba(255, 215, 0, 0.05) 4px
+                );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Lightning Animations */
+        .lightning-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .lightning {
+            position: absolute;
+            width: 3px;
+            height: 150px;
+            background: linear-gradient(to bottom,
+                rgba(255, 215, 0, 0.9) 0%,
+                rgba(255, 215, 0, 0.7) 30%,
+                rgba(255, 215, 0, 0.4) 70%,
+                transparent 100%);
+            animation: lightning-fall 2.5s linear infinite;
+            opacity: 0;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .lightning:nth-child(1) { left: 8%; animation-delay: 0s; }
+        .lightning:nth-child(2) { left: 20%; animation-delay: 0.4s; }
+        .lightning:nth-child(3) { left: 35%; animation-delay: 0.8s; }
+        .lightning:nth-child(4) { left: 50%; animation-delay: 1.2s; }
+        .lightning:nth-child(5) { left: 65%; animation-delay: 1.6s; }
+        .lightning:nth-child(6) { left: 80%; animation-delay: 2s; }
+        .lightning:nth-child(7) { left: 92%; animation-delay: 2.4s; }
+
+        @keyframes lightning-fall {
+            0% {
+                top: -150px;
+                opacity: 0;
+                transform: scale(0) rotate(0deg);
+            }
+            5% {
+                opacity: 1;
+                transform: scale(1) rotate(-2deg);
+            }
+            25% {
+                opacity: 0.9;
+                transform: scale(1.1) rotate(0deg);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.2) rotate(2deg);
+            }
+            75% {
+                opacity: 0.3;
+                transform: scale(0.9) rotate(-1deg);
+            }
+            100% {
+                top: 100vh;
+                opacity: 0;
+                transform: scale(0) rotate(0deg);
+            }
+        }
+
+        /* Logo Section */
+        .logo-section {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .ai-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #000;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+            animation: logo-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes logo-glow {
+            0%, 100% { box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4); }
+            50% { box-shadow: 0 12px 35px rgba(255, 215, 0, 0.7); }
+        }
+
+        .logo-text {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+            padding: 1rem 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-btn {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            color: #FFD700;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .nav-btn:hover::before {
+            left: 100%;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: #FFD700;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+        }
+
+        .nav-btn.primary {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            border: none;
+            font-weight: 700;
+        }
+
+        .nav-btn.primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.5);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: 150px 2rem 80px;
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-title {
+            font-size: 4.5rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FFD700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.03em;
+            text-shadow: 0 0 40px rgba(255, 215, 0, 0.5);
+            animation: title-pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes title-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            font-weight: 400;
+            color: #FFD700;
+        }
+
+        .hero-description {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 3rem;
+            opacity: 0.8;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 5rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.3rem;
+            opacity: 0.8;
+            margin-bottom: 4rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 215, 0, 0.08);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 25px;
+            padding: 2.5rem;
+            text-align: left;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(255, 215, 0, 0.2);
+            background: rgba(255, 215, 0, 0.15);
+            border-color: rgba(255, 215, 0, 0.6);
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.6);
+        }
+
+        .feature-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #FFD700;
+        }
+
+        .feature-description {
+            font-size: 1rem;
+            opacity: 0.8;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Tools Section */
+        .tools-section {
+            padding: 5rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .tool-card {
+            background: rgba(255, 215, 0, 0.08);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.05));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .tool-card:hover::before {
+            opacity: 1;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 215, 0, 0.5);
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.15);
+        }
+
+        .tool-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+        }
+
+        .tool-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #FFD700;
+        }
+
+        .tool-description {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* AI Models Section */
+        .models-section {
+            padding: 5rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .model-card {
+            background: rgba(255, 215, 0, 0.08);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            border-radius: 25px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .model-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.05));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .model-card:hover::before {
+            opacity: 1;
+        }
+
+        .model-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 215, 0, 0.5);
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.15);
+        }
+
+        .model-card.featured {
+            background: rgba(255, 215, 0, 0.12);
+            border: 2px solid rgba(255, 215, 0, 0.4);
+            transform: scale(1.05);
+        }
+
+        .model-card.featured:hover {
+            transform: scale(1.05) translateY(-8px);
+            box-shadow: 0 25px 50px rgba(255, 215, 0, 0.2);
+        }
+
+        .model-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+        }
+
+        .model-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: #FFD700;
+        }
+
+        .model-subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+        }
+
+        .model-description {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1.5rem;
+        }
+
+        .model-features {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        .model-feature {
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .model-feature::before {
+            content: '⚡';
+            color: #FFD700;
+            font-size: 0.8rem;
+        }
+
+        .model-button {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .model-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        .model-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Pricing Section */
+        .pricing-section {
+            padding: 5rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .pricing-card {
+            background: rgba(255, 215, 0, 0.08);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            border-radius: 25px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.05));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .pricing-card:hover::before {
+            opacity: 1;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 215, 0, 0.5);
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.15);
+        }
+
+        .pricing-card.popular {
+            background: rgba(255, 215, 0, 0.12);
+            border: 2px solid rgba(255, 215, 0, 0.4);
+            transform: scale(1.05);
+        }
+
+        .pricing-card.popular:hover {
+            transform: scale(1.05) translateY(-8px);
+            box-shadow: 0 25px 50px rgba(255, 215, 0, 0.2);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .pricing-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: #FFD700;
+        }
+
+        .pricing-price {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .price-cents {
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+
+        .pricing-period {
+            font-size: 1rem;
+            opacity: 0.7;
+            margin-bottom: 1.5rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .pricing-description {
+            font-size: 1rem;
+            opacity: 0.8;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        .pricing-features {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-feature {
+            padding: 0.7rem 0;
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pricing-feature::before {
+            content: '✓';
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .pricing-feature.unavailable {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .pricing-feature.unavailable::before {
+            content: '✗';
+            color: #666;
+        }
+
+        .pricing-button {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .pricing-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        .pricing-button:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.5);
+            cursor: not-allowed;
+            transform: none;
+        }
+        .cta-section {
+            padding: 5rem 2rem;
+            text-align: center;
+            background: rgba(255, 215, 0, 0.05);
+            margin: 3rem auto 0;
+            max-width: 1000px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .cta-description {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2.5rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1.2rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 215, 0, 0.1);
+            color: #FFD700;
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: #FFD700;
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 3rem 2rem 2rem;
+            text-align: center;
+            margin-top: 5rem;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        .footer-link {
+            color: rgba(255, 215, 0, 0.7);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .footer-link:hover {
+            color: #FFD700;
+            background: rgba(255, 215, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-link {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFD700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .social-link:hover {
+            background: rgba(255, 215, 0, 0.3);
+            border-color: #FFD700;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            margin: 5% auto;
+            padding: 2rem;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 20px;
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+        }
+
+        .close {
+            color: #FFD700;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+        }
+
+        .close:hover {
+            color: #FFA500;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .modal-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .logo-section {
+                top: 1rem;
+                left: 1rem;
+            }
+
+            .ai-logo {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+
+            .logo-text {
+                font-size: 1rem;
+            }
+
+            .nav-container {
+                padding: 0 1rem;
+            }
+
+            .nav-buttons {
+                gap: 1rem;
+            }
+
+            .nav-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.8rem;
+            }
+
+            .hero-section {
+                padding: 120px 1rem 60px;
+            }
+
+            .hero-title {
+                font-size: 2.8rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .hero-description {
+                font-size: 1rem;
+            }
+
+            .features-section,
+            .tools-section {
+                padding: 3rem 1rem;
+            }
+
+            .section-title {
+                font-size: 2.2rem;
+            }
+
+            .features-grid,
+            .tools-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .cta-section {
+                padding: 3rem 1rem;
+                margin: 2rem 1rem 0;
+            }
+
+            .cta-title {
+                font-size: 2rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- AI Logo -->
+    <div class="logo-section">
+        <div class="ai-logo">⚡</div>
+        <div class="logo-text">FlashCore AI</div>
+    </div>
+
+    <!-- Lightning Effects -->
+    <div class="lightning-container">
+        <div class="lightning"></div>
+        <div class="lightning"></div>
+        <div class="lightning"></div>
+        <div class="lightning"></div>
+        <div class="lightning"></div>
+        <div class="lightning"></div>
+        <div class="lightning"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-buttons">
+                <a href="#models" class="nav-btn">AI Models</a>
+                <a href="#tools" class="nav-btn">AI Tools</a>
+                <a href="#pricing" class="nav-btn">Pricing</a>
+                <a href="#about" class="nav-btn" onclick="openModal('aboutModal')">About</a>
+                <a href="#privacy" class="nav-btn" onclick="openModal('privacyModal')">Privacy</a>
+                <a href="#contact" class="nav-btn" onclick="openModal('contactModal')">Contact</a>
+                <a href="https://flashcore-ai-chat-389399072475.us-west1.run.app" class="nav-btn primary">Start Now</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <h1 class="hero-title">FlashCore AI</h1>
+        <p class="hero-subtitle">Advanced AI Assistant</p>
+        <p class="hero-description">
+            Experience the next generation of artificial intelligence with FlashCore.
+            Our cutting-edge AI technology provides intelligent responses, creative solutions,
+            and seamless interactions powered by lightning-fast processing and deep learning algorithms.
+        </p>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <h2 class="section-title">Why Choose FlashCore?</h2>
+        <p class="section-subtitle">
+            Discover the power of advanced AI technology designed for modern businesses and individuals
+        </p>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3 class="feature-title">Lightning Fast</h3>
+                <p class="feature-description">
+                    Get instant responses powered by advanced machine learning algorithms
+                    that process information at unprecedented speeds with minimal latency.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <h3 class="feature-title">Deep Learning</h3>
+                <p class="feature-description">
+                    Continuously improving AI that adapts to your communication style
+                    and learns from every interaction using state-of-the-art neural networks.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h3 class="feature-title">Natural AI</h3>
+                <p class="feature-description">
+                    Engage in human-like conversations with context awareness
+                    and emotional intelligence capabilities that understand nuance.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3 class="feature-title">Secure & Private</h3>
+                <p class="feature-description">
+                    Your data is protected with enterprise-grade security measures,
+                    end-to-end encryption, and privacy-first architecture.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🔥</div>
+                <h3 class="feature-title">Real-time Processing</h3>
+                <p class="feature-description">
+                    Advanced algorithms process complex queries in real-time,
+                    delivering accurate results instantly with parallel computing.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <h3 class="feature-title">Multi-platform</h3>
+                <p class="feature-description">
+                    Access FlashCore AI across all your devices with seamless
+                    synchronization and consistent experience everywhere.
+                </p>
+            </div>
+    </section>
+
+    <!-- AI Models Section -->
+    <section class="models-section" id="models">
+        <h2 class="section-title">FlashCore AI Models</h2>
+        <p class="section-subtitle">
+            Choose from our range of specialized AI models, each designed for different use cases and performance levels
+        </p>
+
+        <div class="models-grid">
+            <div class="model-card">
+                <div class="model-badge">BASIC</div>
+                <div class="model-icon">🌟</div>
+                <h3 class="model-title">FlashCore Lite</h3>
+                <p class="model-subtitle">Entry-level AI model for basic tasks</p>
+                <p class="model-description">
+                    Perfect for simple queries, basic conversations, and everyday AI assistance.
+                    This model provides reliable responses for common questions and basic text generation.
+                </p>
+                <ul class="model-features">
+                    <li class="model-feature">Basic text generation</li>
+                    <li class="model-feature">Simple Q&A responses</li>
+                    <li class="model-feature">Light conversation</li>
+                    <li class="model-feature">Basic content summarization</li>
+                    <li class="model-feature">24/7 availability</li>
+                </ul>
+                <button class="model-button" onclick="selectModel('FlashCore Lite')">Select Model</button>
+            </div>
+
+            <div class="model-card">
+                <div class="model-badge">STANDARD</div>
+                <div class="model-icon">⚡</div>
+                <h3 class="model-title">FlashCore 1.0</h3>
+                <p class="model-subtitle">Fast and reliable AI for general use</p>
+                <p class="model-description">
+                    Our most popular model offering quick, accurate responses for a wide range of tasks.
+                    Ideal for productivity, research, and professional communication needs.
+                </p>
+                <ul class="model-features">
+                    <li class="model-feature">Rapid response times</li>
+                    <li class="model-feature">Advanced text analysis</li>
+                    <li class="model-feature">Multi-format content</li>
+                    <li class="model-feature">Context understanding</li>
+                    <li class="model-feature">Professional writing</li>
+                    <li class="model-feature">Code explanation</li>
+                </ul>
+                <button class="model-button" onclick="selectModel('FlashCore 1.0')">Select Model</button>
+            </div>
+
+            <div class="model-card featured">
+                <div class="model-badge">ADVANCED</div>
+                <div class="model-icon">🔥</div>
+                <h3 class="model-title">FlashCore 1.0 Super</h3>
+                <p class="model-subtitle">Enhanced AI for complex technical tasks</p>
+                <p class="model-description">
+                    Advanced model specialized in mathematics, programming, and technical analysis.
+                    Perfect for developers, engineers, and professionals requiring precise calculations and code assistance.
+                </p>
+                <ul class="model-features">
+                    <li class="model-feature">Complex mathematics</li>
+                    <li class="model-feature">Programming assistance</li>
+                    <li class="model-feature">Code generation</li>
+                    <li class="model-feature">Technical analysis</li>
+                    <li class="model-feature">Algorithm optimization</li>
+                    <li class="model-feature">Data structure design</li>
+                    <li class="model-feature">Debug assistance</li>
+                    <li class="model-feature">Performance tuning</li>
+                </ul>
+                <button class="model-button" onclick="selectModel('FlashCore 1.0 Super')">Select Model</button>
+            </div>
+
+            <div class="model-card">
+                <div class="model-badge">QUANTUM</div>
+                <div class="model-icon">🌌</div>
+                <h3 class="model-title">FlashCore 1.5 Quantum</h3>
+                <p class="model-subtitle">Ultimate AI for unlimited possibilities</p>
+                <p class="model-description">
+                    Our most advanced AI model capable of handling any task with unprecedented intelligence.
+                    Features quantum-inspired processing for complex reasoning, creative generation, and universal problem-solving.
+                </p>
+                <ul class="model-features">
+                    <li class="model-feature">Universal task handling</li>
+                    <li class="model-feature">Quantum processing</li>
+                    <li class="model-feature">Advanced reasoning</li>
+                    <li class="model-feature">Creative generation</li>
+                    <li class="model-feature">Multi-modal processing</li>
+                    <li class="model-feature">Real-time learning</li>
+                    <li class="model-feature">Predictive analysis</li>
+                    <li class="model-feature">Custom solutions</li>
+                    <li class="model-feature">Enterprise features</li>
+                    <li class="model-feature">API integration</li>
+                </ul>
+                <button class="model-button" onclick="selectModel('FlashCore 1.5 Quantum')">Select Model</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Tools Section -->
+    <section class="tools-section" id="tools">
+        <h2 class="section-title">AI Tools & Features</h2>
+        <p class="section-subtitle">
+            Explore our comprehensive suite of AI-powered tools designed to enhance your productivity
+        </p>
+
+        <div class="tools-grid">
+            <div class="tool-card">
+                <div class="tool-icon">🎨</div>
+                <h3 class="tool-title">Image Generation</h3>
+                <p class="tool-description">
+                    Create stunning visuals from text descriptions using advanced AI image generation technology.
+                </p>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-icon">🔍</div>
+                <h3 class="tool-title">DeepSearch</h3>
+                <p class="tool-description">
+                    Advanced search capabilities that understand context and provide comprehensive results.
+                </p>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-icon">🧮</div>
+                <h3 class="tool-title">DeepThink</h3>
+                <p class="tool-description">
+                    Complex reasoning and analysis for solving intricate problems and providing insights.
+                </p>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-icon">📝</div>
+                <h3 class="tool-title">Content Creation</h3>
+                <p class="tool-description">
+                    Generate high-quality written content, from articles to creative writing with AI assistance.
+                </p>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-icon">💻</div>
+                <h3 class="tool-title">Code Assistant</h3>
+                <p class="tool-description">
+                    AI-powered programming assistance for debugging, optimization, and code generation.
+                </p>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-icon">🎵</div>
+                <h3 class="tool-title">Audio Processing</h3>
+                <p class="tool-description">
+                    Advanced audio analysis, transcription, and generation capabilities for multimedia content.
+                </p>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-icon">📊</div>
+                <h3 class="tool-title">Data Analysis</h3>
+                <p class="tool-description">
+                    Intelligent data interpretation and visualization with automated insights and reporting.
+                </p>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-icon">🔬</div>
+                <h3 class="tool-title">Research Assistant</h3>
+                <p class="tool-description">
+                    Comprehensive research capabilities with source verification and academic formatting.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing-section" id="pricing">
+        <h2 class="section-title">Choose Your Plan</h2>
+        <p class="section-subtitle">
+            Select the perfect plan for your needs. All plans include access to our core AI features with varying levels of usage and advanced capabilities.
+        </p>
+
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3 class="pricing-title">Free</h3>
+                <div class="pricing-price">R$ 0</div>
+                <p class="pricing-period">Forever</p>
+                <p class="pricing-description">
+                    Perfect for trying out FlashCore AI and basic personal use.
+                </p>
+                <ul class="pricing-features">
+                    <li class="pricing-feature">FlashCore Lite model access</li>
+                    <li class="pricing-feature">100 queries per day</li>
+                    <li class="pricing-feature">Basic text generation</li>
+                    <li class="pricing-feature">Standard response time</li>
+                    <li class="pricing-feature">Community support</li>
+                    <li class="pricing-feature unavailable">Advanced AI models</li>
+                    <li class="pricing-feature unavailable">Priority support</li>
+                    <li class="pricing-feature unavailable">API access</li>
+                </ul>
+                <button class="pricing-button" disabled>Current Plan</button>
+            </div>
+
+            <div class="pricing-card popular">
+                <div class="popular-badge">Most Popular</div>
+                <h3 class="pricing-title">Pro</h3>
+                <div class="pricing-price">R$ 9<span class="price-cents">,99</span></div>
+                <p class="pricing-period">per month</p>
+                <p class="pricing-description">
+                    Ideal for professionals and small teams who need reliable AI assistance.
+                </p>
+                <ul class="pricing-features">
+                    <li class="pricing-feature">All AI models access</li>
+                    <li class="pricing-feature">5,000 queries per month</li>
+                    <li class="pricing-feature">Priority processing</li>
+                    <li class="pricing-feature">Advanced features</li>
+                    <li class="pricing-feature">Email support</li>
+                    <li class="pricing-feature">Basic API access</li>
+                    <li class="pricing-feature">Usage analytics</li>
+                    <li class="pricing-feature unavailable">Dedicated support</li>
+                </ul>
+                <button class="pricing-button" onclick="subscribe('Pro')">Start Pro Trial</button>
+            </div>
+
+            <div class="pricing-card">
+                <h3 class="pricing-title">Enterprise</h3>
+                <div class="pricing-price">R$ 49<span class="price-cents">,99</span></div>
+                <p class="pricing-period">per month</p>
+                <p class="pricing-description">
+                    For businesses and teams requiring unlimited access and premium features.
+                </p>
+                <ul class="pricing-features">
+                    <li class="pricing-feature">All AI models + Quantum</li>
+                    <li class="pricing-feature">Unlimited queries</li>
+                    <li class="pricing-feature">Instant processing</li>
+                    <li class="pricing-feature">Full API access</li>
+                    <li class="pricing-feature">Dedicated support</li>
+                    <li class="pricing-feature">Custom integrations</li>
+                    <li class="pricing-feature">Advanced analytics</li>
+                    <li class="pricing-feature">Team management</li>
+                </ul>
+                <button class="pricing-button" onclick="subscribe('Enterprise')">Contact Sales</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="cta-section">
+        <h2 class="cta-title">Ready to Experience AI Power?</h2>
+        <p class="cta-description">
+            Join thousands of users who have transformed their productivity with FlashCore AI's advanced capabilities
+        </p>
+        <div class="cta-buttons">
+            <a href="https://flashcore-ai-chat-389399072475.us-west1.run.app" class="btn btn-primary">
+                ⚡ Start Now
+            </a>
+            <a href="#tools" class="btn btn-secondary">
+                Explore Tools
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">FlashCore AI</div>
+            <div class="footer-links">
+                <a href="#models" class="footer-link">AI Models</a>
+                <a href="#tools" class="footer-link">AI Tools</a>
+                <a href="#pricing" class="footer-link">Pricing</a>
+                <a href="#about" class="footer-link" onclick="openModal('aboutModal')">About</a>
+                <a href="#privacy" class="footer-link" onclick="openModal('privacyModal')">Privacy</a>
+                <a href="#contact" class="footer-link" onclick="openModal('contactModal')">Contact</a>
+            </div>
+            <div class="social-links">
+                <a href="mailto:gamerprojp2@gmail.com" class="social-link">📧</a>
+                <a href="#" class="social-link">🐦</a>
+                <a href="#" class="social-link">💼</a>
+                <a href="#" class="social-link">🌐</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('aboutModal')">&times;</span>
+            <h2 class="modal-title">About FlashCore AI</h2>
+            <p class="modal-text">
+                FlashCore AI represents the cutting edge of artificial intelligence technology.
+                Our platform combines advanced machine learning, deep neural networks, and
+                lightning-fast processing to deliver unprecedented AI capabilities.
+                <br><br>
+                We are committed to pushing the boundaries of what's possible with AI,
+                making advanced technology accessible to everyone while maintaining the
+                highest standards of security, privacy, and ethical AI development.
+            </p>
+        </div>
+    </div>
+
+    <div id="privacyModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('privacyModal')">&times;</span>
+            <h2 class="modal-title">Privacy Policy</h2>
+            <p class="modal-text">
+                At FlashCore AI, your privacy is our top priority. We implement
+                enterprise-grade security measures including end-to-end encryption,
+                zero-knowledge architecture, and strict data protection protocols.
+                <br><br>
+                Your personal information is never shared with third parties, and
+                all AI interactions are processed securely. We comply with all
+                international data protection regulations and maintain transparency
+                in our data handling practices.
+            </p>
+        </div>
+    </div>
+
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('contactModal')">&times;</span>
+            <h2 class="modal-title">Contact Us</h2>
+            <p class="modal-text">
+                We're here to help you get the most out of FlashCore AI!
+                <br><br>
+                <strong>Email:</strong> gamerprojp2@gmail.com
+                <br><br>
+                Our support team is available to assist with any questions,
+                technical issues, or feature requests. We typically respond
+                within 24 hours and are committed to providing excellent
+                customer service.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Modal functionality
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = "block";
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+            document.body.style.overflow = "auto";
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                    document.body.style.overflow = "auto";
+                }
+            });
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Enhanced click tracking
+        document.querySelectorAll('.btn-primary, .nav-btn.primary').forEach(button => {
+            button.addEventListener('click', function(e) {
+                console.log('FlashCore: User clicked Start Now button');
+                // Analytics tracking can be added here
+            });
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                navbar.style.background = 'rgba(0, 0, 0, 0.95)';
+                navbar.style.borderBottom = '1px solid rgba(255, 215, 0, 0.4)';
+            } else {
+                navbar.style.background = 'rgba(0, 0, 0, 0.8)';
+                navbar.style.borderBottom = '1px solid rgba(255, 215, 0, 0.3)';
+            }
+        });
+
+        // Add dynamic lightning effects
+        function createLightning() {
+            const container = document.querySelector('.lightning-container');
+            const lightning = document.createElement('div');
+            lightning.className = 'lightning';
+            lightning.style.left = Math.random() * 100 + '%';
+            lightning.style.animationDelay = Math.random() * 2.5 + 's';
+            lightning.style.animationDuration = (Math.random() * 1 + 2) + 's';
+
+            container.appendChild(lightning);
+
+            setTimeout(() => {
+                if (lightning.parentNode) {
+                    lightning.parentNode.removeChild(lightning);
+                }
+            }, 3000);
+        }
+
+        // Create lightning every 300ms
+        setInterval(createLightning, 300);
+
+        // Tool card interactions
+        document.querySelectorAll('.tool-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const title = this.querySelector('.tool-title').textContent;
+                console.log(`FlashCore: User clicked on ${title} tool`);
+                // Tool functionality can be implemented here
+            });
+        });
+
+        // Model selection functionality
+        function selectModel(modelName) {
+            console.log(`FlashCore: User selected ${modelName} model`);
+            alert(`You selected ${modelName}!\n\nThis model will be activated for your account. You can change models anytime from your dashboard.`);
+        }
+
+        // Subscription functionality
+        function subscribe(planType) {
+            console.log(`FlashCore: User initiated ${planType} subscription`);
+            if (planType === 'Pro') {
+                alert(`Starting FlashCore Pro Trial!\n\n✅ R$ 9,99/month\n✅ 7-day free trial\n✅ Cancel anytime\n✅ All AI models included\n\nRedirecting to payment...`);
+            } else if (planType === 'Enterprise') {
+                alert(`Enterprise Plan Inquiry\n\n📞 Contact our sales team\n💼 Custom pricing available\n🏢 Dedicated support included\n🔧 Custom integrations\n\nEmail: gamerprojp2@gmail.com`);
+            }
+        }
+
+        // Model card interactions
+        document.querySelectorAll('.model-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const title = this.querySelector('.model-title').textContent;
+                console.log(`FlashCore: User clicked on ${title} model`);
+            });
+        });
+
+        // Pricing card interactions
+        document.querySelectorAll('.pricing-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const title = this.querySelector('.pricing-title').textContent;
+                console.log(`FlashCore: User clicked on ${title} pricing plan`);
+            });
+        });
+    </script>
+</body>
+</html>
